@@ -1,0 +1,206 @@
+2024-10-25 18:18:45,837 - BEGIN (implicit)
+2024-10-25 18:18:45,839 - SELECT id FROM games WHERE is_active = true
+2024-10-25 18:18:45,839 - [generated in 0.00037s] ()
+2024-10-25 18:18:45,852 - SELECT players.telegram_id, players.username, players.is_registered, players.level, players.winrate, players.losses, players.date_register 
+FROM players JOIN game_players ON players.telegram_id = game_players.player_id 
+WHERE game_players.game_id = ?
+2024-10-25 18:18:45,852 - [generated in 0.00026s] (1,)
+2024-10-25 18:18:46,522 - ROLLBACK
+2024-10-25 18:19:14,986 - BEGIN (implicit)
+2024-10-25 18:19:14,986 - SELECT id FROM games WHERE is_active = true
+2024-10-25 18:19:14,987 - [generated in 0.00015s] ()
+2024-10-25 18:19:14,994 - SELECT players.telegram_id, players.username, players.is_registered, players.level, players.winrate, players.losses, players.date_register 
+FROM players JOIN game_players ON players.telegram_id = game_players.player_id 
+WHERE game_players.game_id = ?
+2024-10-25 18:19:14,994 - [generated in 0.00014s] (1,)
+2024-10-25 18:19:15,992 - ROLLBACK
+2024-10-25 18:19:19,066 - BEGIN (implicit)
+2024-10-25 18:19:19,068 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 18:19:19,068 - [generated in 0.00031s] (955396492,)
+2024-10-25 18:19:19,273 - ROLLBACK
+2024-10-25 19:21:38,208 - BEGIN (implicit)
+2024-10-25 19:21:38,223 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 19:21:38,223 - [generated in 0.00032s] (955396492,)
+2024-10-25 19:21:38,226 - INSERT INTO players (telegram_id, username, is_registered, level, winrate, losses, date_register) VALUES (?, ?, ?, ?, ?, ?, ?)
+2024-10-25 19:21:38,226 - [generated in 0.00027s] (955396492, 'corching', 0, 1, 0, 0, '2024-10-25 19:20:53.721942')
+2024-10-25 19:21:38,227 - COMMIT
+2024-10-25 19:21:44,578 - BEGIN (implicit)
+2024-10-25 19:21:44,578 - SELECT * FROM games WHERE registration = true
+2024-10-25 19:21:44,579 - [generated in 0.00017s] ()
+2024-10-25 19:21:44,742 - ROLLBACK
+2024-10-25 19:21:51,789 - BEGIN (implicit)
+2024-10-25 19:21:51,790 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 19:21:51,790 - [generated in 0.00024s] ()
+2024-10-25 19:21:51,792 - ROLLBACK
+2024-10-25 19:58:45,613 - BEGIN (implicit)
+2024-10-25 19:58:45,619 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 19:58:45,619 - [generated in 0.00016s] ()
+2024-10-25 19:58:45,620 - INSERT INTO games (is_active, registration, start_at) VALUES (?, ?, ?)
+2024-10-25 19:58:45,621 - [generated in 0.00014s] (1, 0, '2024-10-25 19:58:39.078554')
+2024-10-25 19:58:45,621 - COMMIT
+2024-10-25 19:58:48,051 - BEGIN (implicit)
+2024-10-25 19:58:48,052 - SELECT * FROM games WHERE registration = true
+2024-10-25 19:58:48,052 - [generated in 0.00034s] ()
+2024-10-25 19:58:48,194 - ROLLBACK
+2024-10-25 19:58:52,557 - BEGIN (implicit)
+2024-10-25 19:58:52,558 - SELECT * FROM games WHERE registration = true
+2024-10-25 19:58:52,558 - [cached since 4.507s ago] ()
+2024-10-25 19:58:52,703 - ROLLBACK
+2024-10-25 19:59:30,474 - BEGIN (implicit)
+2024-10-25 19:59:30,480 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 19:59:30,480 - [generated in 0.00016s] ()
+2024-10-25 19:59:31,038 - ROLLBACK
+2024-10-25 19:59:33,863 - BEGIN (implicit)
+2024-10-25 19:59:33,864 - SELECT * FROM games WHERE registration = true
+2024-10-25 19:59:33,865 - [generated in 0.00038s] ()
+2024-10-25 19:59:34,394 - ROLLBACK
+2024-10-25 19:59:46,725 - BEGIN (implicit)
+2024-10-25 19:59:46,726 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 19:59:46,726 - [cached since 16.25s ago] ()
+2024-10-25 19:59:47,118 - ROLLBACK
+2024-10-25 19:59:52,971 - BEGIN (implicit)
+2024-10-25 19:59:52,972 - SELECT * FROM games WHERE registration = true
+2024-10-25 19:59:52,972 - [cached since 19.11s ago] ()
+2024-10-25 19:59:53,181 - ROLLBACK
+2024-10-25 20:00:37,266 - BEGIN (implicit)
+2024-10-25 20:00:37,266 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:00:37,266 - [generated in 0.00014s] ()
+2024-10-25 20:00:37,666 - ROLLBACK
+2024-10-25 20:00:57,812 - BEGIN (implicit)
+2024-10-25 20:00:57,813 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:00:57,813 - [generated in 0.00014s] ()
+2024-10-25 20:00:58,275 - ROLLBACK
+2024-10-25 20:02:51,781 - BEGIN (implicit)
+2024-10-25 20:02:51,782 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:02:51,782 - [generated in 0.00016s] ()
+2024-10-25 20:02:52,211 - ROLLBACK
+2024-10-25 20:02:58,661 - BEGIN (implicit)
+2024-10-25 20:02:58,672 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:02:58,672 - [generated in 0.00029s] ()
+2024-10-25 20:02:58,675 - INSERT INTO games (is_active, registration, start_at) VALUES (?, ?, ?)
+2024-10-25 20:02:58,675 - [generated in 0.00022s] (1, 1, '2024-10-25 20:02:48.777757')
+2024-10-25 20:02:58,676 - COMMIT
+2024-10-25 20:03:01,349 - BEGIN (implicit)
+2024-10-25 20:03:01,350 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:03:01,350 - [cached since 9.569s ago] ()
+2024-10-25 20:03:01,356 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:03:01,356 - [generated in 0.00034s] (955396492,)
+2024-10-25 20:03:01,358 - INSERT INTO players (telegram_id, username, is_registered, level, winrate, losses, date_register) VALUES (?, ?, ?, ?, ?, ?, ?)
+2024-10-25 20:03:01,359 - [generated in 0.00037s] (955396492, 'corching', 0, 1, 0, 0, '2024-10-25 20:02:48.776819')
+2024-10-25 20:03:01,360 - COMMIT
+2024-10-25 20:03:16,849 - BEGIN (implicit)
+2024-10-25 20:03:16,850 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:03:16,850 - [cached since 15.49s ago] (955396492,)
+2024-10-25 20:03:17,001 - ROLLBACK
+2024-10-25 20:03:17,161 - BEGIN (implicit)
+2024-10-25 20:03:17,162 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:03:17,162 - [cached since 15.81s ago] (955396492,)
+2024-10-25 20:03:17,164 - UPDATE players SET is_registered=? WHERE players.telegram_id = ?
+2024-10-25 20:03:17,164 - [generated in 0.00018s] (1, 955396492)
+2024-10-25 20:03:17,166 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.registration = 1
+2024-10-25 20:03:17,166 - [generated in 0.00012s] ()
+2024-10-25 20:03:17,167 - INSERT INTO game_players (player_id, game_id, role, is_alive, joined_at) VALUES (?, ?, ?, ?, ?)
+2024-10-25 20:03:17,167 - [generated in 0.00022s] (955396492, 1, None, 1, '2024-10-25 20:03:17.167648')
+2024-10-25 20:03:17,168 - INSERT INTO transactions (telegram_id, transaction_id, currency, total_amount, status, invoice_payload) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at
+2024-10-25 20:03:17,168 - [generated in 0.00015s] (955396492, '5911488590_955396492_284575', 'KZT', 500.0, 'success', 'test-invoice-payload')
+2024-10-25 20:03:17,170 - COMMIT
+2024-10-25 20:03:21,319 - BEGIN (implicit)
+2024-10-25 20:03:21,320 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:03:21,320 - [cached since 29.54s ago] ()
+2024-10-25 20:03:21,323 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:03:21,323 - [cached since 19.97s ago] (955396492,)
+2024-10-25 20:03:21,479 - ROLLBACK
+2024-10-25 20:03:54,125 - BEGIN (implicit)
+2024-10-25 20:03:54,126 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:03:54,126 - [cached since 55.45s ago] ()
+2024-10-25 20:03:54,129 - COMMIT
+2024-10-25 20:04:06,514 - BEGIN (implicit)
+2024-10-25 20:04:06,515 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:04:06,515 - [cached since 74.73s ago] ()
+2024-10-25 20:04:06,517 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:04:06,517 - [cached since 65.16s ago] (1391949784,)
+2024-10-25 20:04:06,519 - INSERT INTO players (telegram_id, username, is_registered, level, winrate, losses, date_register) VALUES (?, ?, ?, ?, ?, ?, ?)
+2024-10-25 20:04:06,519 - [cached since 65.16s ago] (1391949784, 'monlaf', 0, 1, 0, 0, '2024-10-25 20:02:48.776819')
+2024-10-25 20:04:06,521 - COMMIT
+2024-10-25 20:04:54,798 - BEGIN (implicit)
+2024-10-25 20:04:54,805 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:04:54,805 - [generated in 0.00015s] ()
+2024-10-25 20:04:54,806 - UPDATE games SET registration=? WHERE games.id = ?
+2024-10-25 20:04:54,806 - [generated in 0.00016s] (0, 1)
+2024-10-25 20:04:54,807 - COMMIT
+2024-10-25 20:04:57,430 - BEGIN (implicit)
+2024-10-25 20:04:57,430 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:04:57,431 - [cached since 2.629s ago] ()
+2024-10-25 20:04:57,433 - COMMIT
+2024-10-25 20:05:31,096 - BEGIN (implicit)
+2024-10-25 20:05:31,102 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:05:31,102 - [generated in 0.00015s] ()
+2024-10-25 20:05:31,509 - COMMIT
+2024-10-25 20:05:49,652 - BEGIN (implicit)
+2024-10-25 20:05:49,652 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:05:49,653 - [generated in 0.00014s] ()
+2024-10-25 20:05:50,113 - ROLLBACK
+2024-10-25 20:06:59,370 - BEGIN (implicit)
+2024-10-25 20:06:59,371 - SELECT * FROM games WHERE registration = TRUE
+2024-10-25 20:06:59,371 - [generated in 0.00015s] ()
+2024-10-25 20:06:59,372 - ROLLBACK
+2024-10-25 20:07:23,442 - BEGIN (implicit)
+2024-10-25 20:07:23,442 - SELECT * FROM games WHERE registration = TRUE or is_active = TRUE
+2024-10-25 20:07:23,442 - [generated in 0.00013s] ()
+2024-10-25 20:07:23,443 - ROLLBACK
+2024-10-25 20:08:41,450 - BEGIN (implicit)
+2024-10-25 20:08:41,456 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:08:41,456 - [generated in 0.00015s] ()
+2024-10-25 20:08:41,849 - ROLLBACK
+2024-10-25 20:10:39,724 - BEGIN (implicit)
+2024-10-25 20:10:39,735 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:10:39,735 - [generated in 0.00040s] (955396492,)
+2024-10-25 20:10:40,189 - ROLLBACK
+2024-10-25 20:12:08,584 - BEGIN (implicit)
+2024-10-25 20:12:08,586 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.level AS players_level, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-25 20:12:08,586 - [cached since 88.85s ago] (1391949784,)
+2024-10-25 20:12:08,591 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1
+2024-10-25 20:12:08,591 - [generated in 0.00028s] ()
+2024-10-25 20:12:08,973 - ROLLBACK
