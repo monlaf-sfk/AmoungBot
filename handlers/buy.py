@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import Player, GamePlayers, Game, Transaction
 
 router = Router()
-
+@router.message(F.text.lower() == "register")
 @router.message(Command("register"))
 @flags.throttling_key('default')
 async def cmd_start(message: Message, session: AsyncSession):
@@ -94,7 +94,6 @@ async def successful_payment(message: Message, bot: Bot ,session: AsyncSession):
     game_player = GamePlayers(
         game_id=active_game.id,
         player_id=player.telegram_id,
-        role=None,
         is_alive=True
     )
     transaction = Transaction(

@@ -8,7 +8,7 @@ import dotenv
 import logging
 
 from db.base import Base
-from handlers import start, buy, admin
+from handlers import start, buy, admin, game
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import ThrottlingMiddleware, ThrottlingCallMiddleware
 
@@ -45,6 +45,7 @@ async def main():
     dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
     dp.include_router(start.router)
     dp.include_router(admin.router)
+    dp.include_router(game.router)
     dp.include_router(buy.router)
     dp.message.middleware(ThrottlingMiddleware())
     dp.callback_query.middleware(ThrottlingCallMiddleware())

@@ -1,13 +1,13 @@
 import os
 
 import pandas as pd
-from aiogram import Router, F, flags
+from aiogram import Router, F, flags, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, BufferedInputFile
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import Game, Player, GamePlayers
+from db.models import Game, Player, GamePlayers, distribute_targets, generate_all_unique_codes
 
 
 async def export_players_to_excel(session: AsyncSession, file_path: str = "players.xlsx"):
@@ -102,3 +102,81 @@ async def close_registration(message: Message, session: AsyncSession):
     active_game.registration = False
     await session.commit()
     await message.reply(f"Регистрация закрыта для игры ID: {active_game.id}.")
+
+@router.message(Command("open_registration"))
+@flags.throttling_key('default')
+async def close_registration(message: Message, session: AsyncSession):
+    if message.from_user.id != int(os.getenv("ADMIN_ID")):
+        await message.reply("У вас нет прав для закрытия регистрации.")
+        return
+
+    # Check for an active game
+    active_game = await session.execute(
+        select(Game).where(Game.is_active == True)
+    )
+    active_game = active_game.scalar_one_or_none()
+    if active_game.registration:
+        return await message.reply("Регистрация уже открыта.")
+    # If there's no active game, notify the user
+    if not active_game:
+        await message.reply("Нет активной игры для открытия регистрации.")
+        return
+
+    # Close registration
+    active_game.registration = True
+    await session.commit()
+    await message.reply(f"Регистрация возобновлена для игры ID: {active_game.id}.")
+
+@router.message(Command("start_game"))
+@flags.throttling_key('default')
+async def start_game(message: Message, bot: Bot, session: AsyncSession):
+    if message.from_user.id != int(os.getenv("ADMIN_ID")):
+        await message.reply("У вас нет прав для создания игры.")
+        return
+
+    # Проверяем, есть ли активная игра
+    active_game = await session.execute(
+        select(Game).where(Game.is_active == True)
+    )
+    active_game = active_game.scalar_one_or_none()
+
+    if active_game is None:
+        await message.reply("Нет активной игры для начала.")
+        return
+        # Получаем всех игроков, зарегистрированных в текущей игре
+    game_players = await session.execute(
+        select(GamePlayers)
+        .join(Player, Player.telegram_id == GamePlayers.player_id)
+        .filter(GamePlayers.game_id == active_game.id)
+    )
+
+    game_players = game_players.scalars().all()
+    print(game_players)
+    if len(game_players) < 2:
+        await message.reply("Недостаточно игроков для начала игры.")
+        return
+    # Закрываем регистрацию
+    active_game.registration = False
+
+    await generate_all_unique_codes(num_codes=len(game_players), session=session , game_players=game_players)
+
+    # Assign codes to each player
+
+    await session.commit()
+    # Распределяем цели между игроками
+    targets = await distribute_targets(game_players,session)
+    # Отправляем уведомления игрокам
+    for player_id, target_id in targets.items():
+
+        target = await session.get(Player, target_id)
+        player= await session.execute(
+            select(GamePlayers).where(GamePlayers.game_id == active_game.id , GamePlayers.player_id == player_id)
+        )
+        player= player.scalar_one_or_none()
+
+        await bot.send_photo(
+            chat_id=player_id,
+            caption=f"Ваша цель — игрок {target.username}. Найдите и поймайте его!\n"
+                    f"Ващ код для вашего убийцы {player.secret_code}",photo=BufferedInputFile(target.photo, filename="photo.jpg")
+        )
+    await message.reply("Цели распределены, игра начинается! Проверьте личные сообщения для получения информации о вашей цели.")
