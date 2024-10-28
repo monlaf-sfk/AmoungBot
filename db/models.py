@@ -1,6 +1,8 @@
+import os
 import random
 import string
 
+import dotenv
 from sqlalchemy import Column, Integer, BigInteger, String, Boolean, ForeignKey, DateTime, func, Float, LargeBinary
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta, timezone
@@ -13,7 +15,15 @@ class Player(Base):
     telegram_id = Column(Integer, primary_key=True, nullable=False)
     username = Column(String, nullable=True)
     is_registered = Column(Boolean, default=False)
-    level = Column(Integer, default=1)
+    is_payment_requested = Column(Boolean, default=False)
+    first_name = Column(String, nullable=True)  # First name
+    last_name = Column(String, nullable=True)  # Last name
+    sur_name = Column(String, nullable=True)  # Middle name
+    faculty = Column(String, nullable=True)
+    course = Column(Integer, nullable=True)
+    phone = Column(String, nullable=True)
+
+    count_kill = Column(Integer, default=0)
     winrate = Column(Integer, default=0)
     losses = Column(Integer, default=0)
     date_register = Column(DateTime(timezone=True), default=datetime.now(utc_plus_5))
@@ -50,6 +60,15 @@ class GamePlayers(Base):
     player = relationship("Player", back_populates="games")
 
 
+class Paid(Base):
+    __tablename__ = "paids"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    count = Column(Integer, nullable=False, default=1)
+    game_id = Column(Integer, ForeignKey('games.id'), nullable=False)
+
+
+
+
 class Transaction(Base):
     __tablename__ = "transactions"
 
@@ -72,7 +91,7 @@ async def distribute_targets(players, session):
     for i, player in enumerate(players):
         target_id = players[(i + 1) % num_players].player_id  # Цель - следующий игрок
         targets[player.player_id] = target_id
-
+        player.last_kill = datetime.now(utc_plus_5)
         # Сохранение в базе данных
         player.target_id = target_id
 
@@ -91,3 +110,8 @@ async def generate_all_unique_codes(num_codes,session,game_players, length=6):
     for player, code in zip(game_players, list(codes)):
         player.secret_code = code
     await session.commit()
+
+dotenv.load_dotenv()
+
+admins = os.getenv('ADMIN_ID')
+admins = [int(user_id.strip()) for user_id in admins.split(',')]
