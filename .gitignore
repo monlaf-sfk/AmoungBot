@@ -16,4 +16,5 @@ __pycache__/
 **/.idea/
 
 # Игнорирование файлов сборки
-
+myfile.db
+migrations/versions/
