@@ -6,12 +6,13 @@ from aiogram.types import Message, ReplyKeyboardRemove, BufferedInputFile, Callb
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Game, Player, utc_plus_5
+from filters.chat_type import ChatTypeFilter
 from keyboard.start import main_menu_kb, cancel_kb, create_profile_update_kb, create_faculty_selection_kb, faculties, \
     course_button_kbs
 from state.registr import Photo, Full_name
 
 router = Router()  # [1]
-
+router.message.filter(ChatTypeFilter(chat_type="private"))
 @router.message(Command("start"))  # [2]
 @flags.throttling_key('default')
 async def cmd_start(message: Message):
@@ -21,7 +22,7 @@ async def cmd_start(message: Message):
     )
 
 
-@router.message(F.text.lower() == "профиль")
+@router.message(F.text.lower() == "профиль 👤")
 @flags.throttling_key('default')
 async def display_profile(message: Message, session: AsyncSession, bot: Bot):
     player = await session.get(Player, message.from_user.id)
@@ -211,11 +212,36 @@ async def save_faculty(callback_query: CallbackQuery, session: AsyncSession):
     await callback_query.message.edit_text(f"Курс {course} выбран")
 
 
-@router.message(F.text.lower() == "о нас")
+@router.message(F.text.lower() == "о нас 🩸")
 @flags.throttling_key('default')
 async def display_profile(message: Message, session: AsyncSession, bot: Bot):
     await message.answer(
-        "Мы команда Among Us. Мы создаем игры в Among Us для студентов и школьников. "
-        "Если у вас есть вопросы, вы можете обратиться к администратору."
+    "О нас🩸\n"
+    "Добро пожаловать в мир теней \n"
+    "и охотников… Slayer KBTU — \n"
+    "это захватывающая игра, где \n"
+    "каждый участник превращается в хладнокровного охотника и цель \n"
+    "одновременно. Вас ждет адреналин, "
+    "жуткие повороты и настоящая битва за выживание! \n"
+    "Останься последним и докажи, что ты - достойный \n"
+    "победитель.\n\n"
+    "Следи за новостями и готовься к охоте!\n"
+    "@amoung_news"
     )
 
+@router.message(F.text.lower() == "правила игры 👻")
+@flags.throttling_key('default')
+async def display_profile(message: Message, session: AsyncSession, bot: Bot):
+    await message.answer(
+    """
+Правила игры👻
+
+Ты стал охотником в ночи, но игра требует не только скорости и ловкости, но и строгого соблюдения правил. Помни:
+    
+ *• Цель:* коснись или отметь свою “добычу”. Охотник забирает жетон или отметку как доказательство.
+ *• Место и время:* ограниченное время и замкнутая территория — не пытайся сбежать!
+ *• Защита и укрытие:* прячься и беги, но помни — охота не терпит нарушений!
+ *• Этика и безопасность:* никаких физических атак, уважай других игроков.
+ *• Победитель:* последний выживший или тот, кто поймал больше всего целей. Тьма на твоей стороне, но будь осторожен — тебя тоже ищут!
+ """
+   ,parse_mode="Markdown" )

@@ -14,7 +14,7 @@ from keyboard.start import main_menu_kb
 utc_plus_5 = timezone(timedelta(hours=5))  # Adjust to your timezone
 
 # Inactivity threshold: 3 days
-INACTIVITY_THRESHOLD = timedelta(hours=3)
+INACTIVITY_THRESHOLD = timedelta(days=3)
 
 
 async def check_inactive_players(bot: Bot, session: AsyncSession):
@@ -82,8 +82,6 @@ async def check_inactive_players(bot: Bot, session: AsyncSession):
                 top_players = await session.execute(
                     select(GamePlayers)
                     .where(GamePlayers.game_id == active_game.id)
-                    .where(or_(GamePlayers.is_alive == True,
-                               GamePlayers.count_kills > 0))  # Filter by alive or with kills
                     .order_by(GamePlayers.is_alive.desc(),
                               GamePlayers.count_kills.desc())  # Prioritize alive, then by kills
                     .limit(3)

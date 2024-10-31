@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 from aiogram import Bot, Router, F, flags
@@ -15,10 +16,11 @@ from sqlalchemy.orm import selectinload
 from aiogram import types
 from db.models import Player, GamePlayers, Game
 from db.schedualer import INACTIVITY_THRESHOLD, utc_plus_5
+from filters.chat_type import ChatTypeFilter
 from keyboard.start import main_menu_kb, game_kb, faculties
 
 router = Router()
-
+router.message.filter(ChatTypeFilter(chat_type="private"))
 
 class HuntState(StatesGroup):
     waiting_for_code = State()
@@ -126,9 +128,7 @@ async def confirm_kill(message: types.Message, state: FSMContext, session: Async
             # Получаем топ-3 игроков
             top_players = await session.execute(
                 select(GamePlayers)
-                .where(GamePlayers.game_id == active_game.id)
-                .where(or_(GamePlayers.is_alive == True, GamePlayers.count_kills > 0))  # Filter by alive or with kills
-                .order_by(GamePlayers.is_alive.desc(),
+                .where(GamePlayers.game_id == active_game.id).order_by(GamePlayers.is_alive.desc(),
                           GamePlayers.count_kills.desc())  # Prioritize alive, then by kills
                 .limit(3)
                 .options(selectinload(GamePlayers.player))  # Load associated Player data
@@ -348,9 +348,8 @@ async def exit_game(message: types.Message, session: AsyncSession):
     await message.answer(text="Меню:", reply_markup=main_menu_kb(message.from_user.id))
 
 
-
 @router.message(Command("current_game"))
-@router.message(F.text.lower() == "текущая игра")
+@router.message(F.text.lower() == "текущая игра 🔘")
 @flags.throttling_key('default')
 async def current_game_info_handler( message: types.Message, session: AsyncSession, bot: Bot):
     # Fetch active game
@@ -398,15 +397,14 @@ async def current_game_info_handler( message: types.Message, session: AsyncSessi
     progress_bar = '█' * progress + '░' * (progress_bar_length - progress)
 
     # Construct the message
-    message_text = f"**Текущая игра**\n\n"
-    message_text += f"🔹 **Живые игроки:** {live_count}/{total_players}\n"
-    message_text += f"🔹 **Прогресс игры:** [{progress_bar}] {live_count}/{total_players}\n\n"
-    message_text += f"🔹 **Топ убийц:**\n"
+    message_text = f"<b>Текущая игра</b>\n\n"
+    message_text += f"🔹 <b>Живые игроки:</b> {live_count}/{total_players}\n"
+    message_text += f"🔹 <b>Прогресс игры:</b> [{progress_bar}] {live_count}/{total_players}\n\n"
+    message_text += f"🔹 <b>Топ убийц:</b>\n"
 
     for rank, player in enumerate(top_killers, start=1):
         message_text += f"{rank}. {player.player.username} - {player.count_kills} убийств\n"
 
     if not top_killers:
         message_text += "Нет убийц.\n"
-
-    await bot.send_message(message.chat.id, message_text, parse_mode='Markdown',reply_markup=game_kb())
+    await bot.send_message(message.chat.id, message_text, parse_mode='HTML',reply_markup=game_kb())

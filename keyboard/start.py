@@ -9,8 +9,8 @@ from db.models import Player, admins
 
 def main_menu_kb(user_id) -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardBuilder()
-    kb.row(KeyboardButton(text="Профиль"),
-    KeyboardButton(text="Регистрация на игру"))
+    kb.row(KeyboardButton(text="Профиль 👤"),
+    KeyboardButton(text="Регистрация на игру 👾"))
 
 
 
@@ -25,13 +25,14 @@ def main_menu_kb(user_id) -> ReplyKeyboardMarkup:
         kb.row(
         KeyboardButton(text="Закрыть регистрацию"),
         KeyboardButton(text="Открыть регистрацию"))
-        KeyboardButton(text="О нас")
-        kb.row(KeyboardButton(text="Текущая игра"),
-               KeyboardButton(text="О нас"))
+        KeyboardButton(text="О нас 🩸")
+        kb.row(KeyboardButton(text="Текущая игра 🔘"),
+               KeyboardButton(text="О нас 🩸"))
+        kb.row(KeyboardButton(text="Правила игры 👻"))
         return kb.as_markup(resize_keyboard=True)
-    kb.row(KeyboardButton(text="Текущая игра"),
-           KeyboardButton(text="О нас"))
-
+    kb.row(KeyboardButton(text="Текущая игра 🔘"),
+           KeyboardButton(text="О нас 🩸"))
+    kb.row(KeyboardButton(text="Правила игры 👻"))
     return kb.as_markup(resize_keyboard=True)
 
 def game_kb() -> ReplyKeyboardMarkup:

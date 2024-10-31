@@ -14,10 +14,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Player, GamePlayers, Game, admins, Paid
 from filters.admins import IsAdmin
-from keyboard.start import main_menu_kb, cancel_kb
+from filters.chat_type import ChatTypeFilter
+from keyboard.start import main_menu_kb, cancel_kb, faculties
 from state.registr import PaidState
 
 router = Router()
+router.message.filter(ChatTypeFilter(chat_type="private"))
 # @router.message(F.text.lower() == "регистрация на игру")
 # @router.message(Command("register"))
 # @flags.throttling_key('default')
@@ -123,7 +125,7 @@ router = Router()
 #     session.add(game_player)
 #     await session.commit()
 #     await message.reply(f"Вы присоединились к игре {active_game.id}!")
-@router.message(F.text.lower() == "регистрация на игру")
+@router.message(F.text.lower() == "регистрация на игру 👾")
 @router.message(Command("register"))
 @flags.throttling_key('default')
 async def set_photo(message: Message, session: AsyncSession):
@@ -183,7 +185,7 @@ async def set_photo(message: Message, session: AsyncSession):
     await message.answer("Пожалуйста, оплатите билет для участия в игре. \n"
                          "Стоимость билета - 5000 тенге. \n"
                          "Отправьте на номер : xxxxxxx\n"
-                         f"C цифрой:  {paid.count}\n"
+                         f"С цифрой в комментарий:  {paid.count}\n"
                          "После оплаты нажмите кнопку 'Оплатил'", reply_markup=builder.as_markup())
 
 @router.callback_query(F.data.startswith("paid"))
@@ -208,7 +210,7 @@ async def set_photo(call: CallbackQuery,state: FSMContext, session: AsyncSession
     if active_game.registration == False and active_game.is_active == True:
         await call.message.edit_text("Регистрация на игру закрыта.")
         return
-    await call.message.answer("Отправьте фото чека об оплате.", reply_markup=cancel_kb())
+    await call.message.answer("Отправьте фото чека об оплате. (фото)", reply_markup=cancel_kb())
     await call.message.delete_reply_markup()
     await state.update_data(count=count)
     await state.set_state(PaidState.recipt)
@@ -233,13 +235,37 @@ async def set_photo(message: Message, state: FSMContext, session: AsyncSession, 
 
     data = await state.get_data()
     count = data.get("count")
-    await bot.send_photo(os.getenv("CHAT_SUPPORT"), photo=BufferedInputFile(file_path.read(), filename="photo.jpg"),caption=f"Запрос на оплату от пользователя {message.from_user.id}:\n\n{message.from_user.username}\n"
-                                                                                                                            f"С цифрой {count}", reply_markup=builder.as_markup())
+    player = await session.get(Player, message.from_user.id)
+
+    if player:
+        # Format the player's information
+        player_info = (
+            f"**👤 Информация об игроке:**\n\n"
+            f"- **Имя пользователя:** `{player.username}`\n"
+            f"- **Количество убийств:** `{player.count_kill}`\n"
+            f"- **Победы:** `{player.winrate}`\n"
+            f"- **Поражения:** `{player.losses}`\n"
+            f"- **Дата регистрации:** `{player.date_register}`\n\n"
+        )
+
+        # Add optional fields if they exist
+        if player.first_name or player.last_name:
+            player_info += f"- **ФИО:** `{player.first_name} {player.sur_name or ''} {player.last_name}`\n"
+        if player.faculty:
+            player_info += f"- **Факультет:** `{faculties[player.faculty]}`\n"
+        if player.course:
+            player_info += f"- **Курс:** `{player.course}`\n"
+        if player.phone:
+            player_info += f"- **Телефон:** `{player.phone}`\n"
+
+    await bot.send_photo(os.getenv("CHAT_SUPPORT"), photo=BufferedInputFile(file_path.read(), filename="photo.jpg"),caption=f"Запрос на оплату от пользователя {message.from_user.id}:\n\n"
+                                                                                                                            f"{player_info}\n"
+                                                                                                                            f"С цифрой в комментарий: {count}",parse_mode="Markdown", reply_markup=builder.as_markup())
     await state.clear()
 @router.message(PaidState.recipt)
 @flags.throttling_key('default')
 async def set_photo(message: Message, state: FSMContext):
-    await message.answer("Отправьте фото чека об оплате.", reply_markup=cancel_kb())
+    await message.answer("Отправьте фото чека об оплате. (фото)", reply_markup=cancel_kb())
     await state.set_state(PaidState.recipt)
 
 

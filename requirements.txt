@@ -1,6 +1,10 @@
-aiogram
-python-dotenv
-aiosqlite
-sqlalchemy
-pandas
-openpyxl
+aiogram == 3.13.1
+python-dotenv ==1.0.1
+aiosqlite == 0.20.0
+sqlalchemy == 2.0.36
+apscheduler==3.10.4
+alembic == 1.13.3
+openpyxl == 3.1.5
+pandas == 1.5.3
+numpy == 2.1.2
+cachetools == 5.5.0

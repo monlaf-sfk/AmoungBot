@@ -10,10 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import Player, admins
 from filters.admins import IsAdmin
+from filters.chat_type import ChatTypeFilter
 from state.registr import Support
 router = Router()
-
+router.message.filter(ChatTypeFilter(chat_type="private"))
 @router.message(StateFilter(None),Command("support"))
+@router.message(StateFilter(None),F.text.lower() == "поддержка")
 @flags.throttling_key('default')
 async def set_photo(message: Message, state: FSMContext, session: AsyncSession):
     player = await session.get(Player, message.from_user.id)

@@ -5,7 +5,8 @@ from datetime import datetime
 import pandas as pd
 from aiogram import Router, F, flags, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, FSInputFile, BufferedInputFile
+from aiogram.types import Message, FSInputFile, BufferedInputFile, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select, text, or_, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -83,7 +84,7 @@ async def answer_yes(message: Message, session: AsyncSession):
 @router.message(F.text.lower() == "создать игру")
 @router.message(Command("create_game"))
 @flags.throttling_key('default')
-async def start_game(message: Message, session: AsyncSession):
+async def start_game(message: Message, session: AsyncSession, bot: Bot):
 
     active_game = await session.execute(
         select(Game).where(Game.is_active == True)
@@ -97,13 +98,18 @@ async def start_game(message: Message, session: AsyncSession):
     game = Game(registration=True, is_active=True)
     session.add(game)
     await session.commit()
+    await bot.send_message(os.getenv("CHANNEL_ID"), "Прислушайся… это шепчет ночь.\n "
+                                                    "Slayer KBTU открывает регистрацию \n"
+                                                    "на жуткую игру для тех, кто не боится \n"
+                                                    "столкнуться со своими страхами. Рискни и стань охотником — или \n"
+                                                    "жертвой. Вступай сейчас и заполучи свою первую цель… перед рассветом.")
     await message.reply(f"Новая игра начата! ID игры: {game.id}")
 
 
 @router.message(Command("close_registration"))
 @router.message(F.text.lower() == "закрыть регистрацию")
 @flags.throttling_key('default')
-async def close_registration(message: Message, session: AsyncSession):
+async def close_registration(message: Message, session: AsyncSession,bot: Bot):
 
     # Check for an active game
     active_game = await session.execute(
@@ -121,12 +127,20 @@ async def close_registration(message: Message, session: AsyncSession):
     # Close registration
     active_game.registration = False
     await session.commit()
+    await bot.send_message(os.getenv("CHANNEL_ID"), """
+Настал тот самый момент! Slayer KBTU \n
+открывает охоту! У каждого из вас есть \
+цель, но помните — кто-то уже идет \n
+за вами. Никогда не знаешь, откуда придет следующая угроза… \n
+Время пошло!
+
+""")
     await message.reply(f"Регистрация закрыта для игры ID: {active_game.id}.")
 
 @router.message(Command("open_registration"))
 @router.message(F.text.lower() == "открыть регистрацию")
 @flags.throttling_key('default')
-async def close_registration(message: Message, session: AsyncSession):
+async def close_registration(message: Message, session: AsyncSession, bot: Bot):
 
     # Check for an active game
     active_game = await session.execute(
@@ -144,6 +158,7 @@ async def close_registration(message: Message, session: AsyncSession):
     # Close registration
     active_game.registration = True
     await session.commit()
+    await bot.send_message(os.getenv("CHANNEL_ID"), "Регистрация на игру Slayer KBTU открыта! \n")
     await message.reply(f"Регистрация возобновлена для игры ID: {active_game.id}.")
 
 
@@ -224,7 +239,13 @@ async def start_game(message: Message, bot: Bot, session: AsyncSession):
         player= player.scalar_one_or_none()
 
         await send_target_info(bot, player, target, player_id)
-    await bot.send_message(chat_id=os.getenv("CHANNEL_ID"),text="Цели распределены, игра начинается! Проверьте личные сообщения для получения информации о вашей цели.")
+    await bot.send_message(chat_id=os.getenv("CHANNEL_ID"),text="""
+Скоро начнется… Ужасно темные,\n
+кровавые, напряженные часы охоты\n
+вот-вот наступят! Готовься, твоя цель\n
+уже знает, что за ней идут… 3… 2… 1… \n
+Начало!
+""")
     await message.answer("START GAME!!")
 
 @router.message(Command("close_game"))
@@ -294,6 +315,110 @@ async def close_registration(message: Message, session: AsyncSession,bot: Bot):
     active_game.is_active = False
     await session.commit()
     await message.reply(f"Игра завершина для игры ID: {active_game.id}.")
+@router.message(Command("kick"))
+@flags.throttling_key('default')
+async def kick_player(message: Message, session: AsyncSession, bot: Bot):
+    # Extract the player's ID from the message
+    active_games_query = await session.execute(select(Game).where(Game.is_active == True, Game.registration == False))
+    active_game = active_games_query.scalar_one_or_none()
+
+    if not active_game:
+        return  # Exit if there are no active games
+    player_id = int(message.text.split()[1])
+    # Fetch players in the active game
+    player_query = await session.execute(
+        select(GamePlayers).where(GamePlayers.game_id == active_game.id, GamePlayers.is_alive == True, GamePlayers.player_id == player_id).options(
+            selectinload(GamePlayers.player))
+    )
+    player = player_query.scalar_one_or_none()
+    previous_player_query = await session.execute(
+        select(GamePlayers)
+        .where(GamePlayers.target_id == player.player_id, GamePlayers.game_id == active_game.id)
+    )
+    previous_player = previous_player_query.scalar_one_or_none()
+
+    # If there's a previous player in the sequence, assign their target to the inactive player's target
+    if previous_player:
+        previous_player.target_id = player.target_id
+
+    player.is_alive = False
+    player.target_id = None
+    player.player.is_registered = False
+    # Mark player as unregistered
+    await session.commit()
+
+    # Notify the removed player
+    try:
+        await bot.send_message(player.player_id, "Вы были исключены из игры.",
+                               reply_markup=main_menu_kb(player.player_id))
+    except Exception as e:
+        print(f"Failed to notify player {player.player_id}: {e}")
+
+    # Check remaining players to determine game end
+    remaining_players_result = await session.execute(
+        select(GamePlayers)
+        .where(GamePlayers.game_id == active_game.id, GamePlayers.is_alive == True)
+        .options(selectinload(GamePlayers.player))  # Eagerly load related 'player' model
+    )
+    remaining_players = remaining_players_result.scalars().all()
+
+    if len(remaining_players) <= 2:
+        # If two or fewer players remain, determine the winner
+        winner = max(remaining_players, key=lambda p: p.count_kills)
+
+        await bot.send_message(os.getenv("CHANNEL_ID"),
+                               f"Игра окончена! Победитель: {winner.player.username} с {winner.count_kills} убийствами!")
+
+
+        top_players = await session.execute(
+            select(GamePlayers)
+            .where(GamePlayers.game_id == active_game.id)
+            .order_by(GamePlayers.is_alive.desc(),
+                      GamePlayers.count_kills.desc())
+            .limit(3)
+            .options(selectinload(GamePlayers.player))
+        )
+
+        top_players = top_players.scalars().all()
+        all_players_query = await session.execute(
+            select(GamePlayers).where(GamePlayers.game_id == active_game.id)
+            .options(selectinload(GamePlayers.player))
+        )
+        all_participants = all_players_query.scalars().all()
+        # Compose message for top-3 players
+        winners = []
+        top_message = "Топ 3 игрока:\n"
+        for rank, top_player in enumerate(top_players, start=1):
+            winners.append(top_player)
+            top_message += f"{rank}. {top_player.player.username} - {top_player.count_kills} убийств\n"
+        for player in all_participants:
+            if player in winners:
+
+                player.player.winrate += 1
+            else:
+                player.player.losses += 1
+            player.player.count_kill += player.count_kills
+        await session.commit()
+        await bot.send_message(os.getenv("CHANNEL_ID"), top_message)
+
+        # Reset player registration statuses
+        await session.execute(update(Player).values(is_registered=False))
+        # Mark game as inactive
+        active_game.is_active = False
+        await session.commit()
+
+        for participant in all_participants:
+            try:
+                await bot.send_message(
+                    participant.player.telegram_id,
+                    "Игра завершена! Спасибо за участие.",
+                    reply_markup=main_menu_kb(participant.player.telegram_id)
+                )
+            except Exception as e:
+                print(f"Failed to send main keyboard to player {participant.player.telegram_id}: {e}")
+    await message.reply("Игрок исключен из игры.")
+
+
 
 @router.message(Command("sql"))
 async def sql_handler(message: Message, session: AsyncSession):
@@ -302,7 +427,6 @@ async def sql_handler(message: Message, session: AsyncSession):
         return
     sql_query = message.text[len("/sql "):].strip()
 
-    print(sql_query)
     if not sql_query:
         await message.reply("Please provide an SQL query after the command.")
         return
@@ -323,3 +447,54 @@ async def sql_handler(message: Message, session: AsyncSession):
         await message.reply(f"`{response}`", parse_mode="Markdown")
     except SQLAlchemyError as e:
         await message.reply(f"Error executing query: `{e}`", parse_mode="Markdown")
+
+@router.message(Command("get_info"))
+@flags.throttling_key('default')
+async def get_info(message: Message, session: AsyncSession):
+    # Extract the player's ID from the message
+    player_id = int(message.text.split()[1])
+
+    # Fetch the player's information
+    player = await session.get(Player, player_id)
+
+    if player:
+        # Format the player's information
+        player_info = (
+            f"**👤 Информация об игроке:**\n\n"
+            f"- **Имя пользователя:** `{player.username}`\n"
+            f"- **Количество убийств:** `{player.count_kill}`\n"
+            f"- **Победы:** `{player.winrate}`\n"
+            f"- **Поражения:** `{player.losses}`\n"
+            f"- **Дата регистрации:** `{player.date_register}`\n\n"
+        )
+
+        # Add optional fields if they exist
+        if player.first_name or player.last_name:
+            player_info += f"- **ФИО:** `{player.first_name} {player.sur_name or ''} {player.last_name}`\n"
+        if player.faculty:
+            player_info += f"- **Факультет:** `{faculties[player.faculty]}`\n"
+        if player.course:
+            player_info += f"- **Курс:** `{player.course}`\n"
+        if player.phone:
+            player_info += f"- **Телефон:** `{player.phone}`\n"
+        if player.photo:
+            builder = InlineKeyboardBuilder()
+            builder.add(InlineKeyboardButton(
+                text="Показать фото игрока",
+                callback_data=f"show_target_photo_admin:{player.telegram_id}")
+            )
+            await message.reply(
+                text=player_info,
+                reply_markup=builder.as_markup(),parse_mode="Markdown"
+            )
+            return
+        # Send the player's information
+        await message.reply(player_info, parse_mode="Markdown")
+    else:
+        await message.reply("Игрок не найден.")
+
+@router.callback_query(F.data.startswith("show_target_photo_admin:"))
+async def show_target_photo_admin(query, session: AsyncSession):
+    player_id = int(query.data.split(":")[1])
+    player = await session.get(Player, player_id)
+    await query.message.answer_photo(photo=BufferedInputFile(player.photo,filename="photo.jpg"), caption=f"Фото игрока: {player.username}")
