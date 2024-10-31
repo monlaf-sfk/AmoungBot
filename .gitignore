@@ -17,5 +17,3 @@ __pycache__/
 
 # Игнорирование файлов сборки
 myfile.db
-migrations/env.py
-migrations/script.py.mako
