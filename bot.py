@@ -11,7 +11,7 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 
 from db.base import Base
 from db.schedualer import start_scheduler
-from handlers import start, buy, admin, game, support
+from handlers import start, buy, admin, game, support, promocode
 from middlewares.db import DbSessionMiddleware
 from middlewares.throttling import ThrottlingMiddleware, ThrottlingCallMiddleware
 
@@ -69,6 +69,7 @@ async def main():
     dp.include_router(game.router)
     dp.include_router(buy.router)
     dp.include_router(support.router)
+    dp.include_router(promocode.router)
     dp.message.middleware(ThrottlingMiddleware())
     dp.callback_query.middleware(ThrottlingCallMiddleware())
     await bot.delete_webhook(drop_pending_updates=True)

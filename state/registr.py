@@ -20,3 +20,7 @@ class Support(StatesGroup):
 
 class PaidState(StatesGroup):
     recipt = State()
+
+
+class PromocodeState(StatesGroup):
+    code = State()

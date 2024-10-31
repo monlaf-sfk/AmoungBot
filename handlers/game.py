@@ -408,3 +408,6 @@ async def current_game_info_handler( message: types.Message, session: AsyncSessi
     if not top_killers:
         message_text += "Нет убийц.\n"
     await bot.send_message(message.chat.id, message_text, parse_mode='HTML',reply_markup=game_kb())
+
+
+

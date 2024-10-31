@@ -3,7 +3,8 @@ import random
 import string
 
 import dotenv
-from sqlalchemy import Column, Integer, BigInteger, String, Boolean, ForeignKey, DateTime, func, Float, LargeBinary
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, ForeignKey, DateTime, func, Float, LargeBinary, \
+    select
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta, timezone
 from db.base import Base
@@ -67,6 +68,15 @@ class Paid(Base):
     game_id = Column(Integer, ForeignKey('games.id'), nullable=False)
 
 
+class Promocode(Base):
+    __tablename__ = "promocodes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String, unique=True, nullable=False)  # Quest code
+    activation_count = Column(Integer, default=1)  # Number of activations
+
+    def __repr__(self):
+        return f"<Promocode(id={self.id}, code={self.code}, activation_count={self.activation_count})>"
 
 
 class Transaction(Base):
@@ -83,6 +93,9 @@ class Transaction(Base):
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, telegram_id={self.telegram_id}, amount={self.total_amount})>"
+
+
+
 
 async def distribute_targets(players, session):
     targets = {}

@@ -1784,3 +1784,45 @@ WHERE games.is_active = 1 AND games.registration = 0
 FROM games 
 WHERE games.is_active = 1 AND games.registration = 0
 2024-10-31 19:36:00,007 - [cached since 180s ago] ()
+2024-10-31 22:48:40,950 - BEGIN (implicit)
+2024-10-31 22:48:40,958 - SELECT players.telegram_id AS players_telegram_id, players.username AS players_username, players.is_registered AS players_is_registered, players.is_payment_requested AS players_is_payment_requested, players.first_name AS players_first_name, players.last_name AS players_last_name, players.sur_name AS players_sur_name, players.faculty AS players_faculty, players.course AS players_course, players.phone AS players_phone, players.count_kill AS players_count_kill, players.winrate AS players_winrate, players.losses AS players_losses, players.date_register AS players_date_register, players.photo AS players_photo 
+FROM players 
+WHERE players.telegram_id = ?
+2024-10-31 22:48:40,958 - [generated in 0.00018s] (955396492,)
+2024-10-31 22:48:41,662 - ROLLBACK
+2024-10-31 22:48:55,614 - BEGIN (implicit)
+2024-10-31 22:48:55,616 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.registration = 0 AND games.is_active = 1
+2024-10-31 22:48:55,616 - [generated in 0.00020s] ()
+2024-10-31 22:48:55,750 - ROLLBACK
+2024-10-31 22:49:00,006 - BEGIN (implicit)
+2024-10-31 22:49:00,008 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1 AND games.registration = 0
+2024-10-31 22:49:00,009 - [generated in 0.00047s] ()
+2024-10-31 23:10:20,218 - BEGIN (implicit)
+2024-10-31 23:10:20,225 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.registration = 0 AND games.is_active = 1
+2024-10-31 23:10:20,225 - [generated in 0.00016s] ()
+2024-10-31 23:10:20,576 - ROLLBACK
+2024-10-31 23:10:39,596 - BEGIN (implicit)
+2024-10-31 23:10:39,598 - SELECT promocodes.id, promocodes.code, promocodes.activation_count 
+FROM promocodes 
+WHERE promocodes.code = ?
+2024-10-31 23:10:39,598 - [generated in 0.00055s] ('Lol',)
+2024-10-31 23:10:39,601 - ROLLBACK
+2024-10-31 23:11:00,006 - BEGIN (implicit)
+2024-10-31 23:11:00,008 - SELECT games.id, games.is_active, games.registration, games.start_at 
+FROM games 
+WHERE games.is_active = 1 AND games.registration = 0
+2024-10-31 23:11:00,008 - [generated in 0.00019s] ()
+2024-10-31 23:11:32,168 - BEGIN (implicit)
+2024-10-31 23:11:32,174 - SELECT promocodes.id, promocodes.code, promocodes.activation_count 
+FROM promocodes 
+WHERE promocodes.code = ?
+2024-10-31 23:11:32,174 - [generated in 0.00017s] ('Lol',)
+2024-10-31 23:11:32,177 - INSERT INTO promocodes (code, activation_count) VALUES (?, ?)
+2024-10-31 23:11:32,177 - [generated in 0.00012s] ('Lol', 1)
+2024-10-31 23:11:32,178 - COMMIT
