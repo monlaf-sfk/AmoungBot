@@ -23,7 +23,7 @@ A real-life adaptation of *Among Us* that uses a Telegram bot to manage gameplay
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/real-life-among-us-bot.git
+git clone https://github.com/monlaf-sfk/AmoungBot.git
 cd real-life-among-us-bot
 
 # Install dependencies
